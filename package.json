@@ -1,6 +1,6 @@
 {
 	"name": "siwe-zustand",
-	"version": "1.0.4",
+	"version": "1.0.5",
 	"description": "Siwe for zustand",
 	"main": "dist/index.js",
 	"module": "dist/index.mjs",
