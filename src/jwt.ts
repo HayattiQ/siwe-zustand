@@ -85,10 +85,8 @@ export function createErrorResponse(
 	return response;
 }
 
-
 export const JwtPayloadSchema = z.object({
-	address: z.string().startsWith("0x"),
-	sub: z.string().uuid(),
+	sub: z.string().startsWith("0x"),
 	role: z.literal("authenticated"),
 	aud: z.literal("authenticated"),
 	iat: z.number().int().positive(),
