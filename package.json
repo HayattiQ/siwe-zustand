@@ -1,5 +1,5 @@
 {
-	"name": "@RabbitSwapDEX/koikoi-types",
+	"name": "@hayatti/siwe-zustand",
 	"version": "1.0.0",
 	"description": "Shared type definitions for the Koikoi project",
 	"main": "dist/index.js",
@@ -31,18 +31,6 @@
 	"publishConfig": {
 		"registry": "https://npm.pkg.github.com/"
 	},
-	"files": [
-		"dist"
-	],
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/RabbitSwapDEX/koikoi.git",
-		"directory": "packages/types"
-	},
-	"keywords": [
-		"koikoi",
-		"types",
-		"shared"
-	],
+	"files": ["dist"],
 	"license": "ISC"
 }
