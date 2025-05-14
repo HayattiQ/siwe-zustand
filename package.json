@@ -1,6 +1,6 @@
 {
 	"name": "@RabbitSwapDEX/koikoi-types",
-	"version": "0.1.0",
+	"version": "1.0.0",
 	"description": "Shared type definitions for the Koikoi project",
 	"main": "dist/index.js",
 	"module": "dist/index.mjs",
@@ -31,12 +31,18 @@
 	"publishConfig": {
 		"registry": "https://npm.pkg.github.com/"
 	},
-	"files": ["dist"],
+	"files": [
+		"dist"
+	],
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/RabbitSwapDEX/koikoi.git",
 		"directory": "packages/types"
 	},
-	"keywords": ["koikoi", "types", "shared"],
+	"keywords": [
+		"koikoi",
+		"types",
+		"shared"
+	],
 	"license": "ISC"
 }
