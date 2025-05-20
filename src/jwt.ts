@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z, type RefinementCtx } from "zod";
 
 // リクエストスキーマ
 export const LoginRequestSchema = z.object({
@@ -94,3 +94,124 @@ export const JwtPayloadSchema = z.object({
 });
 
 export type JwtPayload = z.infer<typeof JwtPayloadSchema>;
+
+export const RequestCoinCreationPayloadSchema = z.object({
+	name: z
+		.string()
+		.min(1, "トークン名は1文字以上で入力してください。")
+		.max(50, "トークン名は50文字以内で入力してください。"),
+	symbol: z
+		.string()
+		.min(3, "トークンシンボルは3文字以上で入力してください。")
+		.max(8, "トークンシンボルは8文字以内で入力してください。")
+		.regex(
+			/^[A-Z0-9]+$/,
+			"トークンシンボルは英大文字アルファベットと数字のみ使用できます。",
+		),
+	description: z
+		.string()
+		.min(1, "コイン説明は1文字以上で入力してください。")
+		.max(1000, "コイン説明は1000文字以内で入力してください。"),
+	reserve_token_address: z
+		.string()
+		.min(1, "準備金トークンを選択してください。"), // Consider more specific address validation later
+	mint_royalty_bps: z
+		.number()
+		.int()
+		.min(0, "ミントロイヤリティは0以上で入力してください。")
+		.max(1000, "ミントロイヤリティは10%以下で入力してください (1000 BPS)。"), // max 1000 (10%)
+	burn_royalty_bps: z
+		.number()
+		.int()
+		.min(0, "バーンロイヤリティは0以上で入力してください。")
+		.max(1000, "バーンロイヤリティは10%以下で入力してください (1000 BPS)。"), // max 1000 (10%)
+	bonding_curve_steps: z
+		.array(
+			z.object({
+				range: z
+					.string()
+					.refine(
+						(val: string) => /^\d+$/.test(val) && Number.parseInt(val, 10) > 0,
+						{
+							message: "ステップ範囲は正の整数で入力してください。",
+						},
+					),
+				price: z
+					.string()
+					.refine(
+						(val: string) =>
+							/^\d+(\.\d+)?$/.test(val) && Number.parseFloat(val) >= 0,
+						{
+							message: "ステップ価格は0以上の数値で入力してください。",
+						},
+					),
+			}),
+		)
+		.min(1, "ボンディングカーブステップを1つ以上設定してください。"),
+	manual_verification_requested: z.boolean(),
+});
+
+export type RequestCoinCreationPayload = z.infer<
+	typeof RequestCoinCreationPayloadSchema
+>;
+
+// Schema for confirming coin creation payload
+export const ConfirmCoinCreationPayloadSchema = z
+	.object({
+		coin_id: z.string().uuid({ message: "無効な coin_id 形式です。" }),
+		transaction_hash: z
+			.string()
+			.regex(/^0x[a-fA-F0-9]{64}$/, "無効なトランザクションハッシュ形式です。"),
+		status: z.enum(["confirmed", "reverted"], {
+			errorMap: () => ({
+				message:
+					"status は 'confirmed' または 'reverted' である必要があります。",
+			}),
+		}),
+		contract_address: z
+			.string()
+			.regex(/^0x[a-fA-F0-9]{40}$/, "無効なコントラクトアドレス形式です。")
+			.optional(),
+		error_message: z.string().optional(),
+	})
+	.superRefine(
+		(
+			data: {
+				status: "confirmed" | "reverted";
+				contract_address?: string | undefined;
+			},
+			ctx: RefinementCtx,
+		) => {
+			if (data.status === "confirmed" && !data.contract_address) {
+				ctx.addIssue({
+					code: "custom",
+					message:
+						"status が 'confirmed' の場合、contract_address は必須です。",
+					path: ["contract_address"],
+				});
+			}
+			if (data.status === "reverted" && data.contract_address) {
+				ctx.addIssue({
+					code: "custom",
+					message:
+						"status が 'reverted' の場合、contract_address は指定できません。",
+					path: ["contract_address"],
+				});
+			}
+		},
+	);
+
+export type ConfirmCoinCreationPayload = z.infer<
+	typeof ConfirmCoinCreationPayloadSchema
+>;
+
+// Common error response schema (can be used by both frontend and functions if needed)
+export const FunctionErrorResponseSchema = z.object({
+	success: z.literal(false),
+	error: z.object({
+		code: z.string(),
+		message: z.string(),
+		data: z.unknown().optional(), // any から unknown に変更
+	}),
+});
+export type FunctionErrorResponse = z.infer<typeof FunctionErrorResponseSchema>;
