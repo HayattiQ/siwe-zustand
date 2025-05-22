@@ -1,4 +1,4 @@
-import { z, type RefinementCtx } from "zod";
+import { type RefinementCtx, z } from "zod";
 
 // リクエストスキーマ
 export const LoginRequestSchema = z.object({
@@ -108,6 +108,10 @@ export const RequestCoinCreationPayloadSchema = z.object({
 			/^[A-Z0-9]+$/,
 			"トークンシンボルは英大文字アルファベットと数字のみ使用できます。",
 		),
+	logo_url: z
+		.string()
+		.url("ロゴURLは有効なURL形式で入力してください。")
+		.optional(),
 	description: z
 		.string()
 		.min(1, "コイン説明は1文字以上で入力してください。")
